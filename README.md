@@ -7,7 +7,7 @@ Parameters to Define:
 - **KeyPair**: Name of a current Key Pair
 - **IPforSSH**: restrict SSH access to your IP. Default is 0.0.0.0/0
 
-[![Launch Stack](https://cdn.rawgit.com/buildkite/cloudformation-launch-stack-button-svg/master/launch-stack.svg)](https://aws-workshop-c1as-cft-templates.s3.amazonaws.com/c1-ws-log4shell.yaml)
+[![Launch Stack](https://cdn.rawgit.com/buildkite/cloudformation-launch-stack-button-svg/master/launch-stack.svg)](https://console.aws.amazon.com/cloudformation/home#/stacks/new?stackName=c1-ws-log4shell&templateURL=https://aws-workshop-c1as-cft-templates.s3.amazonaws.com/c1-ws-log4shell.yaml)
 
 ![architecture](images/architecture.png)
 
