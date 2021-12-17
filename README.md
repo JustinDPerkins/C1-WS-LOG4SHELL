@@ -61,6 +61,7 @@ Notice the output(Shell B) of JNDIExploit, showing it has sent the malicious LDA
 ```bash
 docker exec vulnerable-app ls /tmp
 ```
+![shell-c](images/shell-c.png)
 
 7. Repeat attack this time with IPS rule set to **Prevent**
 
