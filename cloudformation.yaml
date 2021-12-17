@@ -1,0 +1,183 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: "Trend Micro Workshop for log4shell vulnerablility."
+Mappings: 
+  RegionMap: 
+    us-east-1:
+      al2: ami-061ac2e015473fbe2
+    us-east-2:
+      al2: ami-056b1936002ca8ede
+    us-west-1:
+      al2: ami-028f2b5ee08012131
+    us-west-2:
+      al2: ami-0e21d4d9303512b8e
+    ca-central-1:
+      al2: ami-0173297cea9ba27b0
+    eu-west-1:
+      al2: ami-04632f3cef5083854
+    sa-east-1:
+      al2: ami-053a035b046dbb704
+
+Parameters:
+  EnvironmentName:
+    Description: An environment name that is prefixed to resource names
+    Type: String
+    Default: WS-Workshop
+  VpcCIDR:
+    Description: Please enter the IP range (CIDR notation) for this VPC
+    Type: String
+    Default: 10.0.0.0/23
+  PublicSubnet1CIDR:
+    Description: Please enter the IP range (CIDR notation) for the public subnete
+    Type: String
+    Default: 10.0.1.0/28
+  KeyPair:
+    Type: String
+    Default: ""
+    Description: Enter name of a key pair for SSH
+  IPforSSH:
+    Description: Please enter the IP range (CIDR notation) for the SSH access to instance
+    Type: String
+    Default: 0.0.0.0/0
+
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VpcCIDR
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+       - Key: Owner
+         Value: Devteam
+       - Key: Environment
+         Value: Dev
+       - Key: Role
+         Value: Developer
+       - Key: Name
+         Value: !Ref EnvironmentName
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Ref EnvironmentName
+
+  InternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref VPC
+
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Ref PublicSubnet1CIDR
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Public Subnet (AZ1)
+
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Public Routes
+
+  DefaultPublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  PublicSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet1
+
+  WorkshopSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: "workshop-sg"
+      GroupDescription: "Security group for aws workshop"
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - Description: "SSH Access"
+          IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref IPforSSH
+        - Description: "Cloud One Access"
+          IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+        - Description: "Cloud One Access"
+          IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          FromPort: -1
+          ToPort: -1
+          CidrIp: 0.0.0.0/0
+      Tags:
+       - Key: Owner
+         Value: Devteam
+       - Key: Environment
+         Value: Dev
+       - Key: Role
+         Value: Developer
+       - Key: Name
+         Value: !Ref EnvironmentName
+
+  InboundRule:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref WorkshopSecurityGroup
+      IpProtocol: -1
+      FromPort: -1
+      ToPort: -1
+      SourceSecurityGroupId: !GetAtt WorkshopSecurityGroup.GroupId
+
+  VulnerableServer:
+    Type: AWS::EC2::Instance
+    DependsOn: WorkshopSecurityGroup
+    Properties:
+        SubnetId: !Ref PublicSubnet1
+        SecurityGroupIds: 
+          - !Ref WorkshopSecurityGroup
+        ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", al2]
+        KeyName: !Ref KeyPair
+        InstanceType: t2.medium
+        UserData: 
+          !Base64 | 
+            #!/bin/bash
+            sudo yum update -y
+            sudo yum install -y git
+            sudo amazon-linux-extras install -y docker
+            sudo service docker start
+            sudo amazon-linux-extras install -y java-openjdk11
+            cd home/ec2-user
+            git clone https://github.com/christophetd/log4shell-vulnerable-app.git
+            wget https://aws-workshop-c1as-cft-templates.s3.amazonaws.com/JNDIExploit.v1.2.zip
+            cd log4shell-vulnerable-app
+            sudo docker build . -t vulnerable-app     
+        Tags:
+          -
+            Key: Name
+            Value: TM-WorkShop
+Outputs:
+  EC2PublicIp:
+    Description: Server Public IP
+    Value: !GetAtt VulnerableServer.PublicIp
+  EC2PrivateIp:
+    Description: Server Private IP
+    Value: !GetAtt VulnerableServer.PrivateIp
