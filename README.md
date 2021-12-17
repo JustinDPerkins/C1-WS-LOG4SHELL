@@ -23,9 +23,11 @@ Parameters to Define:
 ![deployment_script](images/deploymentscript.png)
 
 ## 2. In Cloud One-WS: Assign IPS rule for CVE-2021-44228 to linux machine
-    - IPS rule number: **1011242**
+    - IPS rule number: **1011242** or **1008610**
     - Assign rule and change to **Detect Only** for now.
     - Accept all rule dependencies.
+
+![Click here for additional coverage on Apache Log4j "Log4Shell" Remote Code Execution 0-Day Vulnerability (CVE-2021-44228)](https://success.trendmicro.com/solution/000289940)
     
 ![ips_rule](images/ipsrule.png)
     
@@ -80,3 +82,6 @@ docker exec vulnerable-app ls /tmp
 
 ## Reference
 Thank you [christophetd](https://github.com/christophetd/log4shell-vulnerable-app) for providing the vulnerable Spring Boot web application.
+Trend Micro Success: https://success.trendmicro.com/solution/000289940
+This web-based tool can help identify server applications that may be affected by the Log4Shell: https://log4j-tester.trendmicro.com/
+
