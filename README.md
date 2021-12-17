@@ -1,6 +1,9 @@
 # Cloud One - Workload Security Log4Shell
 This repo contains a quick deployment template to showcase CVE-2021-44228 LOG4SHELL exploit and Workload Security Intrusion Prevention
 
+### Note on CFT deployment in AWS regions
+- I only added AMI Id's for US-EAST-1, US-EAST-2, US-WEST-1, US-WEST-2, CA-CENTRAL-1, SA-EAST-1, EU-WEST-1.
+
 ## Deploy CloudFormation Template
 
 Parameters to Define:
@@ -78,10 +81,8 @@ docker exec vulnerable-app ls /tmp
 ## Repeat attack this time with IPS rule set to **Prevent**
 
 
-<hr>
-
 ## Reference
-Thank you [christophetd](https://github.com/christophetd/log4shell-vulnerable-app) for providing the vulnerable Spring Boot web application.
-Trend Micro Success: https://success.trendmicro.com/solution/000289940
-This web-based tool can help identify server applications that may be affected by the Log4Shell: https://log4j-tester.trendmicro.com/
+- Thank you [christophetd](https://github.com/christophetd/log4shell-vulnerable-app) for providing the vulnerable Spring Boot web application.
+- Trend Micro Success: https://success.trendmicro.com/solution/000289940
+- This web-based tool can help identify server applications that may be affected by the Log4Shell: https://log4j-tester.trendmicro.com/
 
