@@ -20,16 +20,16 @@ Parameters to Define:
     sudo su
     <Deploy Workload Security Agent deployment script with Linux Policy attached.>
     ```
-    ![deployment_script](images/deploymentscript.png)
+![deployment_script](images/deploymentscript.png)
 
 ## 2. In Cloud One-WS: Assign IPS rule for CVE-2021-44228 to linux machine
     - IPS rule number: **1011242**
     - Assign rule and change to **Detect Only** for now.
     - Accept all rule dependencies.
     
-    ![ips_rule](images/ipsrule.png)
+![ips_rule](images/ipsrule.png)
     
-    ![detect_only](images/detectonly.png)
+![detect_only](images/detectonly.png)
 
 ---
 
